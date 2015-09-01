@@ -46,9 +46,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Tests\DataWithInclude.cs" />
     <Compile Include="Tests\Framework.cs" />
     <Compile Include="Tests\OnlyXml.cs" />
     <Compile Include="Tests\Simple.cs" />
+    <Compile Include="Tests\WithInclude.cs" />
     <Compile Include="XmlMapper.cs" />
     <Compile Include="Tests\Data.cs" />
     <Compile Include="Tests\WriteAndRead.cs" />
@@ -72,6 +74,16 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\OnlyXml.Diff.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\DataWithInclude.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\DataWithInclude.Diff.xml">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>

@@ -8,15 +8,40 @@ using System.Xml;
 
 namespace TinyXmlMapper
 {
+    /// <summary>
+    /// Определяет словарь Dictionary[string, string] сопоставление полей объекта их названиям
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class PropertyMapAttribute : Attribute {}
 
+    /// <summary>
+    /// Пропустить поле
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class PropertyIgnoreAttribute : Attribute {}
 
+    /// <summary>
+    /// Сохранять без создания узла
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class PropertyWithoutNodeAttribute : Attribute { }
 
+    /// <summary>
+    /// Элементы класса должны быть отмечены как <see cref="PropertyIncludeAttribute"/>
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    public sealed class ClassWithIncludeAttribute : Attribute { }
+
+    /// <summary>
+    /// Включить поле в выгрузку
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property)]
+    public sealed class PropertyIncludeAttribute : Attribute { }
+
+
+    /// <summary>
+    /// Имя узла для элементов перечисления
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class PropertyItemNameAttribute : Attribute
     {
@@ -125,6 +150,9 @@ namespace TinyXmlMapper
         private static void Build(XmlMapper mapper, object that, string rootName)
         {
             Type type = that.GetType();
+            Attribute[] typeAttributes = Attribute.GetCustomAttributes(type);
+            Attribute include = typeAttributes.FirstOrDefault(p => p is ClassWithIncludeAttribute);
+
             List<PropertyInfo> propertyInfos = new List<PropertyInfo>(type.GetProperties(BindingFlags.Public | BindingFlags.Instance));
             List<PropertyInfo> ignores = new List<PropertyInfo>();
 
@@ -137,8 +165,13 @@ namespace TinyXmlMapper
                     // 2015-08-31 emiya: Not supported type
                     ignores.Add(propertyInfo);
                 }
-                object[] attributes = propertyInfo.GetCustomAttributes(false);
+                object[] attributes = propertyInfo.GetCustomAttributes(true);
                 if (attributes.Any(p => p is PropertyIgnoreAttribute))
+                {
+                    ignores.Add(propertyInfo);
+                    continue;
+                }
+                if (include != null && !attributes.Any(p => p is PropertyIncludeAttribute))
                 {
                     ignores.Add(propertyInfo);
                     continue;
@@ -185,7 +218,7 @@ namespace TinyXmlMapper
 
 
                 object value = propertyInfo.GetValue(that, null);
-                object[] attributes = propertyInfo.GetCustomAttributes(false);
+                object[] attributes = propertyInfo.GetCustomAttributes(true);
                 bool isCollection = typeof(IEnumerable).IsAssignableFrom(propertyType);
                 bool withoutNode = attributes.Any(p => p is PropertyWithoutNodeAttribute);
                 if (isCollection)
