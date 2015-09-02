@@ -21,8 +21,52 @@ namespace TinyXmlMapper
     public sealed class PropertyIgnoreAttribute : Attribute {}
 
     /// <summary>
+    /// Сохранять без создания root узла
+    /// </summary>
+    /// <example>
+    /// /* not exists
+    /// <root>
+    ///     <list>
+    ///         <item>A</item>
+    ///         <item>B</item>
+    ///         <item>C</item>
+    ///     </list>
+    /// </root>
+    /// */
+    /// 
+    /// /* exists
+    ///     <list>
+    ///         <item>A</item>
+    ///         <item>B</item>
+    ///         <item>C</item>
+    ///     </list>
+    /// */
+    /// </example>
+    [AttributeUsage(AttributeTargets.Property)]
+    public sealed class PropertyWithoutRootAttribute : Attribute { }
+
+    /// <summary>
     /// Сохранять без создания узла
     /// </summary>
+    /// <example>
+    /// /* not exists
+    /// <root>
+    ///     <list>
+    ///         <item>A</item>
+    ///         <item>B</item>
+    ///         <item>C</item>
+    ///     </list>
+    /// </root>
+    /// */
+    /// 
+    /// /* exists
+    /// <root>
+    ///         <item>A</item>
+    ///         <item>B</item>
+    ///         <item>C</item>
+    /// </root>
+    /// */
+    /// </example>
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class PropertyWithoutNodeAttribute : Attribute { }
 
@@ -167,6 +211,11 @@ namespace TinyXmlMapper
                     continue;
                 }
                 object[] attributes = propertyInfo.GetCustomAttributes(true);
+                if (attributes.Any(p => p is PropertyMapAttribute))
+                {
+                    propertyMap = propertyInfo;
+                    continue;
+                }
                 if (attributes.Any(p => p is PropertyIgnoreAttribute))
                 {
                     ignores.Add(propertyInfo);
@@ -175,11 +224,6 @@ namespace TinyXmlMapper
                 if (include != null && !attributes.Any(p => p is PropertyIncludeAttribute))
                 {
                     ignores.Add(propertyInfo);
-                    continue;
-                }
-                if (attributes.Any(p => p is PropertyMapAttribute))
-                {
-                    propertyMap = propertyInfo;
                     continue;
                 }
 
@@ -221,10 +265,11 @@ namespace TinyXmlMapper
                 object value = propertyInfo.GetValue(that, null);
                 object[] attributes = propertyInfo.GetCustomAttributes(true);
                 bool isCollection = typeof(IEnumerable).IsAssignableFrom(propertyType);
+                bool withoutRoot = attributes.Any(p => p is PropertyWithoutRootAttribute);
                 bool withoutNode = attributes.Any(p => p is PropertyWithoutNodeAttribute);
                 if (isCollection)
                 {
-                    mapper.StartElement(localName);
+                    if (!withoutRoot) mapper.StartElement(localName);
                     string itemName = null;
                     if (!withoutNode)
                     {
@@ -252,7 +297,7 @@ namespace TinyXmlMapper
                     {
                         Build(mapper, item, itemName);
                     }
-                    mapper.EndElement();
+                    if (!withoutRoot) mapper.EndElement();
                     continue;
                 }
 
