@@ -10,7 +10,7 @@ namespace TinyXmlMapper.Tests
     public class OnlyXml
     {
         /*
-            <DataXml>
+            <Data>
               <Self>
                 <Name>Emiya</Name>
                 <Phone>777</Phone>
@@ -23,23 +23,62 @@ namespace TinyXmlMapper.Tests
                 <Data>full address ...</Data>
               </Current>
               <Notes>
-                <InfoXml>
+                <Info>
                   <Note>some 1</Note>
-                </InfoXml>
-                <InfoXml>
+                </Info>
+                <Info>
                   <Note>some 2</Note>
-                </InfoXml>
-                <InfoXml>
+                </Info>
+                <Info>
                   <Note>some 3</Note>
-                </InfoXml>
-                <InfoXml>
+                </Info>
+                <Info>
                   <Note>some 4</Note>
-                </InfoXml>
+                </Info>
               </Notes>
-            </DataXml>
+            </Data>
         */
         internal static readonly string XmlData = "TinyXmlMapper.Resources.OnlyXml.xml";
         internal static readonly string XmlDiffData = "TinyXmlMapper.Resources.OnlyXml.Diff.xml";
+
+        #region Data
+
+        class Person
+        {
+            public string Name { get; set; }
+            public string Phone { get; set; }
+        }
+
+        internal class Address
+        {
+            public string Data { get; set; }
+        }
+
+        class Info
+        {
+            public string Note { get; set; }
+        }
+
+        class Data
+        {
+            public Data()
+            {
+                Self = new Person();
+                Owner = new Person();
+                Current = new Address();
+                Notes = new List<Info>();
+            }
+
+            public Person Self { get; set; }
+
+            public Person Owner { get; set; }
+
+            public Address Current { get; set; }
+
+            public List<Info> Notes { get; set; }
+        }
+
+        #endregion
 
         [Test]
         public void OnlyWrite()
@@ -47,41 +86,41 @@ namespace TinyXmlMapper.Tests
             string xmlString = Framework.LoadInternalAsString<WriteAndRead>(XmlData);
             xmlString = Framework.ReplaceWhitespace(xmlString);
 
-            var writeData = new DataXml()
+            var writeData = new Data()
             {
-                Self = new PersonXml()
+                Self = new Person()
                 {
                     Name = "Emiya",
                     Phone = "777",
                 },
-                Owner = new PersonXml()
+                Owner = new Person()
                 {
                     Name = "None",
                     Phone = "*",
                 },
-                Current = new AddressXml()
+                Current = new Address()
                 {
                     Data = "full address ...",
                 },
-                Notes = new List<InfoXml>()
+                Notes = new List<Info>()
                 {
-                    new InfoXml() { Note = "some 1"},
-                    new InfoXml()
+                    new Info() { Note = "some 1"},
+                    new Info()
                     {
                         Note = "some 2"
                     },
-                    new InfoXml()
+                    new Info()
                     {
                         Note = "some 3"
                     },
-                    new InfoXml()
+                    new Info()
                     {
                         Note = "some 4"
                     },
                 }
             };
 
-            var writeMapper = XmlMapper.Build(writeData, nameof(DataXml));
+            var writeMapper = XmlMapper.Build(writeData, nameof(Data));
 
             var builder = new StringBuilder();
             using (XmlWriter writer = XmlWriter.Create(builder))
@@ -97,33 +136,33 @@ namespace TinyXmlMapper.Tests
         {
             string xmlString = Framework.LoadInternalAsString<WriteAndRead>(XmlData);
 
-            DataXml readData = new DataXml()
+            Data readData = new Data()
             {
-                Self = new PersonXml()
+                Self = new Person()
                 {
                 },
-                Owner = new PersonXml()
+                Owner = new Person()
                 {
                 },
-                Current = new AddressXml()
+                Current = new Address()
                 {
                 },
-                Notes = new List<InfoXml>()
+                Notes = new List<Info>()
                 {
-                    new InfoXml() { },
-                    new InfoXml()
+                    new Info() { },
+                    new Info()
                     {
                     },
-                    new InfoXml()
+                    new Info()
                     {
                     },
-                    new InfoXml()
+                    new Info()
                     {
                     },
                 }
             };
 
-            var readMapper = XmlMapper.Build(readData, nameof(DataXml));
+            var readMapper = XmlMapper.Build(readData, nameof(Data));
 
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.IgnoreComments = true;
@@ -153,33 +192,33 @@ namespace TinyXmlMapper.Tests
         {
             string xmlString = Framework.LoadInternalAsString<WriteAndRead>(XmlDiffData);
 
-            DataXml readData = new DataXml()
+            Data readData = new Data()
             {
-                Self = new PersonXml()
+                Self = new Person()
                 {
                 },
-                Owner = new PersonXml()
+                Owner = new Person()
                 {
                 },
-                Current = new AddressXml()
+                Current = new Address()
                 {
                 },
-                Notes = new List<InfoXml>()
+                Notes = new List<Info>()
                 {
-                    new InfoXml() { },
-                    new InfoXml()
+                    new Info() { },
+                    new Info()
                     {
                     },
-                    new InfoXml()
+                    new Info()
                     {
                     },
-                    new InfoXml()
+                    new Info()
                     {
                     },
                 }
             };
 
-            var readMapper = XmlMapper.Build(readData, nameof(DataXml));
+            var readMapper = XmlMapper.Build(readData, nameof(Data));
 
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.IgnoreComments = true;
@@ -207,41 +246,41 @@ namespace TinyXmlMapper.Tests
         [Test]
         public void FullTest()
         {
-            DataXml writeData = new DataXml()
+            Data writeData = new Data()
             {
-                Self = new PersonXml()
+                Self = new Person()
                 {
                     Name = "Emiya",
                     Phone = "777",
                 },
-                Owner = new PersonXml()
+                Owner = new Person()
                 {
                     Name = "None",
                     Phone = "*",
                 },
-                Current = new AddressXml()
+                Current = new Address()
                 {
                     Data = "full address ...",
                 },
-                Notes = new List<InfoXml>()
+                Notes = new List<Info>()
                 {
-                    new InfoXml() { Note = "some 1" },
-                    new InfoXml()
+                    new Info() { Note = "some 1" },
+                    new Info()
                     {
                         Note = "some 2"
                     },
-                    new InfoXml()
+                    new Info()
                     {
                         Note = "some 3"
                     },
-                    new InfoXml()
+                    new Info()
                     {
                         Note = "some 4"
                     },
                 }
             };
 
-            var writeMapper = XmlMapper.Build(writeData, nameof(DataXml));
+            var writeMapper = XmlMapper.Build(writeData, nameof(Data));
 
             var builder = new StringBuilder();
             using (XmlWriter writer = XmlWriter.Create(builder))
@@ -251,33 +290,33 @@ namespace TinyXmlMapper.Tests
             string xmlString = builder.ToString();
 
 
-            DataXml readData = new DataXml()
+            Data readData = new Data()
             {
-                Self = new PersonXml()
+                Self = new Person()
                 {
                 },
-                Owner = new PersonXml()
+                Owner = new Person()
                 {
                 },
-                Current = new AddressXml()
+                Current = new Address()
                 {
                 },
-                Notes = new List<InfoXml>()
+                Notes = new List<Info>()
                 {
-                    new InfoXml() { },
-                    new InfoXml()
+                    new Info() { },
+                    new Info()
                     {
                     },
-                    new InfoXml()
+                    new Info()
                     {
                     },
-                    new InfoXml()
+                    new Info()
                     {
                     },
                 }
             };
 
-            var readMapper = XmlMapper.Build(readData, nameof(DataXml));
+            var readMapper = XmlMapper.Build(readData, nameof(Data));
 
             XmlReaderSettings settings = new XmlReaderSettings();
             settings.IgnoreComments = true;

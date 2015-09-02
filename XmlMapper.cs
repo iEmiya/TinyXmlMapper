@@ -164,6 +164,7 @@ namespace TinyXmlMapper
                 {
                     // 2015-08-31 emiya: Not supported type
                     ignores.Add(propertyInfo);
+                    continue;
                 }
                 object[] attributes = propertyInfo.GetCustomAttributes(true);
                 if (attributes.Any(p => p is PropertyIgnoreAttribute))
@@ -310,7 +311,7 @@ namespace TinyXmlMapper
                 if (item is Property)
                 {
                     Read(reader, item as Property);
-                    if (reader.MoveToContent() == XmlNodeType.EndElement)
+                    if (reader.MoveToContent() == XmlNodeType.EndElement && reader.Name.Equals(item.LocalName))
                     {
                         if (!reader.Read()) return;
                     }
@@ -324,7 +325,10 @@ namespace TinyXmlMapper
 
             } while (elements.Count > 0);
 
-            reader.Read();
+            if (reader.MoveToContent() == XmlNodeType.EndElement && reader.Name.Equals(element.LocalName))
+            {
+                reader.Read();
+            }
         }
 
         private static void Read(XmlReader reader, Property element)

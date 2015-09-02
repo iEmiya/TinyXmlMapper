@@ -16,8 +16,43 @@ namespace TinyXmlMapper.Tests
             </Data>
         */
 
-        internal static readonly string XmlData = "TinyXmlMapper.Resources.DataWithInclude.xml";
-        internal static readonly string XmlDiffData = "TinyXmlMapper.Resources.DataWithInclude.Diff.xml";
+        #region Data
+
+        [ClassWithInclude]
+        class DataWithInclude
+        {
+            public class CustomerImpl
+            {
+                public string DefaultName { get; set; }
+            }
+
+            public class InfoImpl
+            {
+                public string TypeName { get; set; }
+            }
+
+            public class DataImpl
+            {
+                public string Name { get; set; }
+                public string Note { get; set; }
+
+                [PropertyMap]
+                public Dictionary<string, string> PropertyNames { get; set; }
+            }
+
+            public CustomerImpl Customer { get; set; }
+
+            public InfoImpl Info { get; set; }
+
+            [PropertyInclude]
+            [PropertyWithoutNode]
+            public DataImpl Data { get; set; }
+        }
+
+        #endregion
+
+        internal static readonly string XmlData = "TinyXmlMapper.Resources.WithInclude.xml";
+        internal static readonly string XmlDiffData = "TinyXmlMapper.Resources.WithInclude.Diff.xml";
 
         [Test]
         public void OnlyWrite()
